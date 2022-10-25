@@ -58,11 +58,11 @@ namespace S3Sync
         /// Sample Full.NET : S3Sync.exe BucketName=guitarrapc-multipart-test KeyPrefix=hoge LocalRoot=C:\HomeMogeImages ExcludeFiles=.gitignore,.gitattributes, ExcludeDirectories=.git,test DryRun=false
         /// </summary>
         /// <param name="args"></param>
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             try
             {
-                MainCoreAsync(args).GetAwaiter().GetResult();
+                await MainCoreAsync(args);
                 Environment.Exit(0);
             }
             catch (Exception ex)
@@ -85,7 +85,10 @@ namespace S3Sync
 
             // Validate argumanges
             LogTitle("Start : Evaluate Arguments. Override with EnvironmentVariables if missing argument.");
-            EvaluateArguments(args);
+            if (!EvaluateArguments(args))
+            {
+                return;
+            }
 
             // Set UploadCallback
             if (!Silent)
@@ -134,7 +137,7 @@ namespace S3Sync
             ServicePointManager.DefaultConnectionLimit = 96;
         }
 
-        static void EvaluateArguments(string[] args)
+        static bool EvaluateArguments(string[] args)
         {
             // BucketName=nantokakantokabucket
             BucketName = args.Where(x => x.StartsWith(ArgumentType.BucketName.ToString(), StringComparison.InvariantCultureIgnoreCase))
@@ -239,15 +242,17 @@ namespace S3Sync
             {
                 Error("Please pass arguments. See detail followings.");
                 PrintHelp();
-                throw new NullReferenceException(nameof(BucketName));
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(LocalRoot))
             {
                 Error("Please pass arguments. See detail followings.");
                 PrintHelp();
-                throw new NullReferenceException(nameof(LocalRoot));
+                return false;
             }
+
+            return true;
         }
 
         private static string GetEnvValueString(ArgumentType arg, EnvType env)
