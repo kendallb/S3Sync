@@ -36,20 +36,22 @@ namespace S3Sync.BenchmarkCore
         {
             public BenchmarkConfig()
             {
-                Add(MarkdownExporter.GitHub);
-                Add(MemoryDiagnoser.Default);
+                AddExporter(MarkdownExporter.GitHub);
+                AddDiagnoser(MemoryDiagnoser.Default);
 
                 // .NETCore
-                Add(Job.ShortRun.WithRuntime(CoreRuntime.Core20)
+                AddJob(Job.ShortRun.WithRuntime(CoreRuntime.Core20)
                     .WithToolchain(CsProjCoreToolchain.NetCoreApp20)
                     .WithWarmupCount(1)
+                    .WithIterationCount(1)
                     .WithLaunchCount(1));
 
                 // Full.Net
-                Add(Job.ShortRun.WithRuntime(ClrRuntime.Net47)
+                AddJob(Job.ShortRun.WithRuntime(ClrRuntime.Net47)
                     .WithJit(Jit.RyuJit)
                     .WithPlatform(Platform.X64)
                     .WithWarmupCount(1)
+                    .WithIterationCount(1)
                     .WithLaunchCount(1));
             }
         }
